@@ -1,0 +1,18 @@
+version: '3.8'
+services:
+  bind9:
+    image: ubuntu/bind9:9.18-23.10_edge
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+    volumes:
+      - ./config:/etc/bind
+      - bind9_cache:/var/cache/bind
+      - bind9_cache:/var/lib/bind
+    environment:
+      - BIND9_user=root
+      - TZ=America/Sao_Paulo
+    restart: unless-stopped
+volumes:
+  bind9_cache:
+  bind9_records:
