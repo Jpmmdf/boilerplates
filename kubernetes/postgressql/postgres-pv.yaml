@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgres-poc-pv
+  labels:
+    type: nfs
+spec:
+  storageClassName: nfs-csi
+  capacity:
+    storage: 10Gi # Ajuste conforme a necessidade
+  accessModes:
+    - ReadWriteOnce
+  nfs:
+    path: /srv/nfs/poc/postgres
+    server: k-suporte
+    readOnly: false
