@@ -1,0 +1,97 @@
+trigger:
+- develop
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  appName: 'jpit-webapp'
+  imageName: 'joaomilhome/$(appName)'
+  commitMessage: 'chore: Update image tag'
+  nodeVersion: '18.x'
+  dockerBuildxVersion: 'v0.7.1'
+
+stages:
+- stage: Build
+  condition: and(succeeded(), not(contains(variables['Build.SourceVersionMessage'], variables['commitMessage'])))
+  displayName: 'Build App and Docker Image'
+  jobs:
+  - job: Build
+    steps:
+    - task: Cache@2
+      inputs:
+        key: 'npm | "$(Agent.OS)" | $(appName)/package-lock.json'
+        restoreKeys: |
+          npm | "$(Agent.OS)"
+        path: $(Build.SourcesDirectory)/$(appName)/node_modules
+      displayName: 'Cache npm packages'
+
+    - task: NodeTool@0
+      inputs:
+        versionSpec: $(nodeVersion)
+      displayName: 'Install Node.js'
+    - script: |
+        npm install -g @angular/cli
+        npm install
+        ng build --prod
+      workingDirectory: '$(Build.SourcesDirectory)/$(appName)' 
+      displayName: 'Build Angular App'
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.SourcesDirectory)/$(appName)/dist'
+        ArtifactName: 'dist'
+      displayName: 'Publish Angular Build Artifacts'
+    
+- stage: DockerBuildAndPush
+  condition: and(succeeded(), not(contains(variables['Build.SourceVersionMessage'], variables['commitMessage'])))
+  displayName: 'Docker Build and Push Image'
+  dependsOn: Build
+  jobs:
+  - job: Docker
+    steps:
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: 'current'
+        downloadType: 'single'
+        artifactName: 'dist'
+        downloadPath: '$(Build.SourcesDirectory)'
+
+    - script: |
+        export DOCKER_CLI_EXPERIMENTAL=enabled
+        docker version
+        mkdir -p ~/.docker/cli-plugins/
+        wget -O ~/.docker/cli-plugins/docker-buildx https://github.com/docker/buildx/releases/download/$(dockerBuildxVersion)/buildx-$(dockerBuildxVersion).linux-amd64
+        chmod a+x ~/.docker/cli-plugins/docker-buildx
+      displayName: 'Install Docker Buildx'
+
+    - task: Docker@2
+      displayName: 'Docker Login'
+      inputs:
+        command: 'login'
+        containerRegistry: 'docker-connection'
+    - script: |
+        docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+        docker buildx create --use
+        docker buildx build --platform linux/amd64,linux/arm64  -f $(appName)/Dockerfile -t $(imageName):$(Build.BuildId) . --push
+      displayName: 'Docker Build and Push'
+- stage: UpdateK8sDeployment
+  displayName: 'Update K8s Deployment'
+  jobs:
+  - job: UpdateImage
+    steps:
+    - checkout: git://jpit-webapp-angular/jpit-webapp-angular-cd@develop
+      persistCredentials: true
+    - script: |
+        git checkout -b develop
+      displayName: 'Clone and checkout continuous delivery repo'
+    - script: |
+        sed -i "s|$(imageName):[a-zA-Z0-9_.-]*|$(imageName):$(Build.BuildId)|g" config/dev/deployment.yaml
+      displayName: 'Update deployment image'
+    - script: |
+        git config user.email "pipeline@azuredevops.com"
+        git config user.name "Azure DevOps Pipeline"
+        git add config/dev/deployment.yaml
+        git commit -m "chore: Update image tag to $(Build.BuildId)"
+        git push --set-upstream origin develop
+      displayName: 'Commit and push changes'
