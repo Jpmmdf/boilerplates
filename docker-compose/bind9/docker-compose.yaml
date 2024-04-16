@@ -1,6 +1,7 @@
-version: '3.8'
+---
 services:
   bind9:
+    container_name: bind9
     image: ubuntu/bind9:9.18-23.10_edge
     ports:
       - "53:53/tcp"

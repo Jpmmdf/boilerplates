@@ -1,0 +1,42 @@
+$ORIGIN . ; base domain-name
+$TTL 300    ; default TTL for zone
+home.jpit.com.br         IN      SOA   ns.home.jpit.com.br. home.jpit.com.br. (
+                                 2024041016 ; serial 
+                                 3600       ; refresh (1 hour)
+                                 3600       ; retry (1 hour)
+                                 2419200    ; expire (4 weeks)
+                                 3600       ; minimum (1 hour)
+                                )
+                  NS   ns.home.jpit.com.br.
+$ORIGIN home.jpit.com.br.
+;PROD
+pve             A   192.168.1.10
+srv-prod-1      A   192.168.1.50
+srv-prod-2      A   192.168.1.13
+srv-prod-3      A   192.168.1.71
+kube-prod-1     A   192.168.1.60
+
+;DEV
+srv-demo-1      A   192.168.2.50
+srv-demo-2      A   192.168.2.12
+
+$ORIGIN prod.com.br.
+demo            A   192.168.1.60
+
+$ORIGIN home.jpit.com.br.
+ns              A   192.168.1.71
+
+$ORIGIN kube.home.jpit.com.br.
+*          A   192.168.1.60
+
+$ORIGIN kube-prod-1.home.jpit.com.br.
+*          A   192.168.1.60
+
+$ORIGIN srv-prod-1.home.jpit.com.br.
+*               A   192.168.1.50
+$TTL 300 ; 5 minutes
+srv-demo-1      A   192.168.2.50
+srv-demo-2      A   192.168.2.50
+
+$TTL 86400; 1 day
+srv-prod-1      A   192.168.1.50
