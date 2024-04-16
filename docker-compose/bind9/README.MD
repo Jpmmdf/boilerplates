@@ -27,8 +27,16 @@ Ensure you have Docker and Docker Compose installed on your system to run this p
 
 ### DNS Zones and Records
 
-DNS zones and records for both production (`home.jpit.com.br`) and development (`kube.home.jpit.com.br`, `prod.com.br`) environments are defined. These include configurations for various services like `srv-prod-1`, `srv-demo-1`, and wildcard domains.
+DNS zones and records are established for the internal domain `home.jpit.com.br`, which supports both production and development environments. The production VMs follow a naming convention such as `srv-prod-*`, indicating servers in the production environment. Development VMs use the prefix `srv-demo-*`, indicating servers used for development purposes. Both sets of VMs are resolved internally within the network to maintain security and manageability. This structure allows for clear separation and organization of internal services, ensuring that domain resolutions are appropriately handled within the designated environments.
 
+
+### External DNS and Reverse Proxy Setup
+
+For external traffic, the domain `example.com.br` handles incoming requests. A reverse proxy setup redirects traffic to internal services as configured. This allows external users to access internal services without exposing the actual internal network structure.
+
+## Domain Customization
+
+To use this project with your own domain, replace all instances of `jpit.com.br` in the DNS configuration files (`home-jpit.com.br.zone`, `named.conf`) with your domain name. Ensure that your domain settings are correctly configured to resolve the DNS queries as per your network setup. Similarly, update the `example.com.br` settings according to your external domain requirements.
 ## Volume Details
 
 Persistent data volumes:
