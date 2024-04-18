@@ -1,0 +1,33 @@
+#cloud-config
+autoinstall:
+  version: 1
+  locale: en_US
+  keyboard:
+    layout: us
+  ssh:
+    install-server: true
+    allow-pw: true
+    disable_root: true
+    ssh_quiet_keygen: true
+    allow_public_ssh_keys: true
+  packages:
+    - qemu-guest-agent
+    - sudo
+  storage:
+    layout:
+      name: direct
+    swap:
+      size: 0
+  user-data:
+    package_upgrade: false
+    timezone: America/Sao_Paulo
+    users:
+      - name: jpitcorp
+        groups: [adm, sudo]
+        lock-passwd: false
+        sudo: ALL=(ALL) NOPASSWD:ALL
+        shell: /bin/bash
+        # passwd: your-password
+        # - or -
+        ssh_authorized_keys:
+          - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC1QcgETieDMsoy0XlHrFgToul+jKbFerDNa7TpiIqhERkCcl6BOcmHzW7MTsQWwdSllOAS+AplEi5WQsE+0ywuJQZjm091OVTmDyzujsGyHOYudCQpMXYNFGQbtv4mFXbjaX0bUISWQjboQYfUtIwC+u2jexiSU+EqiO4/6Q2urWdrv1qrl1vOk+U6c8EWRJ+qDRCdmaQaiCm/Up3EWPSLS172z5pAOS7zwECbTurMIaZ+FBrU/2XpL1ZwGQCWZezDggMwZsfW96+1SZb62btY2o+wChlwGRbFy+/g+Jbjvaa53SrOOGJ6lDd7qv0xZPfyPojbPe/7Ws4ZoGCuwjs+d9Z6AovyuL87yE3o3RxtgGJObVfdiB2QW2xaY2uFjQgUN7NP9fewZoiX8LbsH1iWQcc9xMRPfBm12JrytNtIKCrA4zjRLZmaE1Rtemefbsxkv5sYK850Zr8IsV8qC0Y2vfFtGWvknXQBYED74B/HJYOOktm0irMlTl1Z+Y3OI7k= joaopedromilhome@MacBook-Pro-de-Joao.local

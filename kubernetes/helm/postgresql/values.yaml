@@ -1,0 +1,9 @@
+global:
+  postgresql:
+    securityContext:
+    enabled: true
+    fsGroup: 1001
+    runAsUser: 1001
+    auth:
+      postgresPassword: "123456789"
+  storageClass: nfs-csi

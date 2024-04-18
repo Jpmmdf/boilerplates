@@ -1,0 +1,9 @@
+pm_api_url     = "https://seu-servidor-proxmox:8006/api2/json"
+pm_user        = "root@pam"
+pm_password    = "sua-senha"
+target_node    = "seu-node"
+template_name  = "template-ubuntu"
+vm_name        = "ubuntu-vm"
+cores          = 2
+memory         = 2048
+disk_size      = "20G"
