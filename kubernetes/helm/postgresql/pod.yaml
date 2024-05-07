@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: meu-pod-com-volume
+  namespace: dev
+spec:
+  volumes:
+    - name: meu-volume
+      persistentVolumeClaim:
+        claimName: data-postgres-postgresql-0
+  containers:
+    - name: busybox-container
+      image: busybox
+      imagePullPolicy: IfNotPresent
+      command: ["sh", "-c", "sleep 3600"]  # Mantém o shell em espera por uma hora
+      volumeMounts:
+        - mountPath: "/mnt/data"
+          name: meu-volume
+      resources:
+        requests:
+          cpu: "100m"
+          memory: "128Mi"
+        limits:
+          cpu: "200m"
+          memory: "256Mi"
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
